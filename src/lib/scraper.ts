@@ -23,7 +23,10 @@ export class Scraper {
     // send notifications
 
     if (newRides.length > 0) {
+
       const recipients: Array<Recipient> = JSON.parse(readFileSync('./recipients.json', { encoding: 'utf-8' })) || [];
+      console.info(`${newRides.length} new rides found, notifying ${recipients.map(r => r.name).join(', ')}`);
+
       recipients.forEach(recipient => {
         switch (recipient.notifyBy) {
           case NOTIFY.ALTERTZY:
