@@ -1,0 +1,37 @@
+{
+  "name": "starcar-crawler",
+  "version": "1.0.0",
+  "description": "Find free Starcar rides",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r dotenv/config dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fstreicher/starcar-crawler.git"
+  },
+  "author": "Fabian Streicher",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fstreicher/starcar-crawler/issues"
+  },
+  "homepage": "https://github.com/fstreicher/starcar-crawler#readme",
+  "dependencies": {
+    "axios": "^0.26.1",
+    "cheerio": "^1.0.0-rc.10",
+    "dotenv": "^16.0.0",
+    "node-cron": "^3.0.0",
+    "parse5": "^6.0.1",
+    "remove": "^0.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.23",
+    "@types/node-cron": "^3.0.1",
+    "@types/parse5": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^5.18.0",
+    "@typescript-eslint/parser": "^5.18.0",
+    "esbuild": "^0.14.34",
+    "eslint": "^8.13.0",
+    "typescript": "^4.6.3"
+  }
+}

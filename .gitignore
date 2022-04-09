@@ -1,3 +1,8 @@
+# sys files
+hashes.txt
+error.txt
+recipients.json
+
 # Logs
 logs
 *.log
