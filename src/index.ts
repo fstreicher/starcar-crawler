@@ -1,8 +1,7 @@
 import { scheduleCronJobs } from './lib/cron';
 import { Scraper } from './lib/scraper';
 
-// scheduleCronJobs();
-new Scraper().run();
+scheduleCronJobs();
 
 process.on('SIGINT', () => {
   console.info('\nShutting down gracefully...');
