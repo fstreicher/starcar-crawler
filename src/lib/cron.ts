@@ -5,8 +5,8 @@ export function scheduleCronJobs(): void {
   console.info('Initializing cron jobs');
   const scraper = new Scraper();
 
-  // run every 5 minutes
-  schedule('*/5 * * * *', () => {
+  // run every minute
+  schedule('* * * * *', () => {
     const date = new Date();
     console.log(`\nRunning cron job @ ${date.toLocaleTimeString('de-DE', { hour12: false })}`);
     scraper.run();
