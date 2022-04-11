@@ -46,14 +46,16 @@ export class Scraper {
           filteredRides.push(...newRides);
         }
 
-        switch (recipient.notifyBy) {
-          case NOTIFY.ALTERTZY:
-            alertzy(
-              recipient.notifyKey,
-              filteredRides.length === 1 ? '1 neue Fahrt verfügbar' : `${newRides.length} neue Fahrten verfügbar`,
-              filteredRides.map(r => `${r.car} von ${r.from} nach ${r.to} ${r.fuel ? `(${r.fuel})` : ''}\n${r.dateFrom} - ${r.dateTo}`.trim()).join('\n\n')
-            );
-            break;
+        if (filteredRides.length > 0) {
+          switch (recipient.notifyBy) {
+            case NOTIFY.ALTERTZY:
+              alertzy(
+                recipient.notifyKey,
+                filteredRides.length === 1 ? '1 neue Fahrt verfügbar' : `${filteredRides.length} neue Fahrten verfügbar`,
+                filteredRides.map(r => `${r.car} von ${r.from} nach ${r.to} ${r.fuel ? `(${r.fuel})` : ''}\n${r.dateFrom} - ${r.dateTo}`.trim()).join('\n\n')
+              );
+              break;
+          }
         }
       });
     } else {
@@ -121,7 +123,7 @@ export class Scraper {
 function alertError(e: Error): void {
   if (!existsSync('./error.txt')) {
     console.info('  \u27f9  Sending error notification!');
-    writeFileSync('./error.txt', '1');
+    writeFileSync('./error.txt', JSON.stringify(e, null, 2));
     alertzy(process.env.ALERTZY_KEY, 'Error', e?.message, AlertzyPriority.CRITICAL);
   }
 }
