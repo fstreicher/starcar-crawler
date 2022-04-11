@@ -1,4 +1,5 @@
 export interface Ride {
+  category:string;
   group: string;
   car: string;
   distance: string;

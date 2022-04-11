@@ -28,12 +28,30 @@ export class Scraper {
       console.info(`${newRides.length} new rides found, notifying ${recipients.map(r => r.name).join(', ')}`);
 
       recipients.forEach(recipient => {
+
+        const filters = recipient.filter;
+        const filteredRides = [];
+        if (filters) {
+          newRides.forEach(ride => {
+            for (const [key, value] of Object.entries(filters)) {
+              const _key = key as keyof Ride;
+              if (key in ride && ride[_key] !== value) {
+                break;
+              } else {
+                filteredRides.push(ride);
+              }
+            }
+          });
+        } else {
+          filteredRides.push(...newRides);
+        }
+
         switch (recipient.notifyBy) {
           case NOTIFY.ALTERTZY:
             alertzy(
               recipient.notifyKey,
-              newRides.length === 1 ? '1 neue Fahrt verfügbar' : `${newRides.length} neue Fahrten verfügbar`,
-              newRides.map(r => `${r.car} von ${r.from} nach ${r.to} ${r.fuel ? `(${r.fuel})` : ''}\n${r.dateFrom} - ${r.dateTo}`.trim()).join('\n\n')
+              filteredRides.length === 1 ? '1 neue Fahrt verfügbar' : `${newRides.length} neue Fahrten verfügbar`,
+              filteredRides.map(r => `${r.car} von ${r.from} nach ${r.to} ${r.fuel ? `(${r.fuel})` : ''}\n${r.dateFrom} - ${r.dateTo}`.trim()).join('\n\n')
             );
             break;
         }
@@ -53,7 +71,6 @@ export class Scraper {
         try {
           const $ride = $(ride);
           const children = $ride.children().toArray();
-          const group = $ride.find('.flip-box-headline1').text().replace(/GRUPPE\s+/i, '');
           const car = $ride.find('.flip-box-headline2').text();
           const dates = $ride.find('.klm-date');
           const dateFrom = dates.eq(0).text().replace(/\n\s+/, ' ');
@@ -62,7 +79,11 @@ export class Scraper {
           const from = $(children[7]).contents().first().text().replace(/[\n\s]/g, '');
           const to = $(children[11]).contents().first().text().replace(/[\n\s]/g, '');
           const fuel = $ride.find('.marker .small2')?.text() ?? '';
+          const dataAttributes = $ride.find('.button.button-black')?.attr();
+          const group = dataAttributes['data-group-id'];
+          const category = dataAttributes['data-category-key'];
           return {
+            category,
             group,
             car,
             dateFrom,
@@ -88,7 +109,7 @@ export class Scraper {
     writeFileSync('./hashes.txt', uniqueHashes.join('\n'));
   }
 
-  private hash(ride: Omit<Ride, 'fuel'>): string {
+  private hash(ride: Omit<Ride, 'fuel' | 'category'>): string {
     if (!ride.hash) {
       return Object.values(ride).join('').replace(/[\s:\.-]+/g, '').toUpperCase();
     }
