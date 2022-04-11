@@ -63,7 +63,7 @@ export class Scraper {
 
   private async getRides(): Promise<Array<Ride>> {
     const page = await axios.get(this.URL).catch(e => alertError(e));
-    if (!page) { return Promise.reject([]); }
+    if (!page) { return Promise.resolve([]); }
     const $ = load(page.data);
 
     const rides = $('#start-city .area-flip.klm').toArray();
