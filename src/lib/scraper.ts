@@ -107,9 +107,11 @@ export class Scraper {
   }
 
   private saveRides(rides: Array<Ride>): void {
-    const hashes = rides.map(r => r.hash || this.hash(r));
-    const uniqueHashes = [...new Set(hashes)];
-    writeFileSync('./hashes.txt', uniqueHashes.join('\n'));
+    if (rides?.length) {
+      const hashes = rides.map(r => r.hash || this.hash(r));
+      const uniqueHashes = [...new Set(hashes)];
+      writeFileSync('./hashes.txt', uniqueHashes.join('\n'));
+    }
   }
 
   private hash(ride: Omit<Ride, 'fuel' | 'category'>): string {
