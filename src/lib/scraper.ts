@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { load } from 'cheerio';
+import { val } from 'cheerio/lib/api/attributes';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { AlertzyPriority, isRide, NOTIFY, Recipient, Ride } from '../types';
 import { alertzy } from './alertzy';
@@ -33,10 +34,21 @@ export class Scraper {
         const filteredRides = [];
         if (filters) {
           newRides.forEach(ride => {
+            filterLoop:
             for (const [key, value] of Object.entries(filters)) {
               const _key = key as keyof Ride;
-              if (key in ride && ride[_key] !== value) {
+              if (key in ride && !value.includes(';') && ride[_key] !== value) {
                 break;
+              } else if (key in ride && value.includes(';')) {
+                const values = value.split(';');
+                for (const v of values) {
+                  if (
+                    v.startsWith('!') && v.slice(1) === ride[_key] ||
+                    !v.startsWith('!') && v !== ride[_key]
+                  ) {
+                    break filterLoop;
+                  }
+                }
               } else {
                 filteredRides.push(ride);
               }
@@ -95,7 +107,7 @@ export class Scraper {
             to,
             distance,
             fuel,
-            hash: this.hash({ group, car, dateFrom, dateTo, from, to, distance })
+            hash: this.hash({ group, car, dateFrom, dateTo, from, to, distance, fuel })
           } as Ride;
         } catch (e) {
           alertError(e as Error);
@@ -114,7 +126,7 @@ export class Scraper {
     }
   }
 
-  private hash(ride: Omit<Ride, 'fuel' | 'category'>): string {
+  private hash(ride: Omit<Ride, 'category'>): string {
     if (!ride.hash) {
       return Object.values(ride).join('').replace(/[\s:\.-]+/g, '').toUpperCase();
     }
