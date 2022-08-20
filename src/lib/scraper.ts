@@ -64,7 +64,7 @@ export class Scraper {
               alertzy(
                 recipient.notifyKey,
                 filteredRides.length === 1 ? '1 neue Fahrt verfügbar' : `${filteredRides.length} neue Fahrten verfügbar`,
-                filteredRides.map(r => `${r.car} von ${r.from} nach ${r.to} ${r.fuel ? `(${r.fuel})` : ''}\n${r.dateFrom} - ${r.dateTo}`.trim()).join('\n\n')
+                filteredRides.map(r => `${r.car} (${r.group}) von ${r.from} nach ${r.to} ${r.fuel ? `(${r.fuel})` : ''}\n${r.dateFrom} - ${r.dateTo}`.trim()).join('\n\n')
               );
               break;
           }
