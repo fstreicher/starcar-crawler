@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { load } from 'cheerio';
-import { val } from 'cheerio/lib/api/attributes';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+
 import { AlertzyPriority, isRide, NOTIFY, Recipient, Ride } from '../types';
 import { alertzy } from './alertzy';
+
 
 
 export class Scraper {
@@ -28,30 +29,34 @@ export class Scraper {
       const recipients: Array<Recipient> = JSON.parse(readFileSync('./recipients.json', { encoding: 'utf-8' })) || [];
       console.info(`${newRides.length} new rides found, notifying ${recipients.map(r => r.name).join(', ')}`);
 
+      const filterRides = (ride: Ride, filters: Record<string, string>): boolean => {
+        for (const [key, value] of Object.entries(filters)) {
+          const _key = key as keyof Ride;
+          if (key in ride && !value.includes(';') && ride[_key] !== value) {
+            return false;
+          } else if (key in ride && value.includes(';')) {
+            const values = value.split(';');
+            for (const v of values) {
+              if (
+                v.startsWith('!') && v.slice(1) === ride[_key] ||
+                !v.startsWith('!') && v !== ride[_key]
+              ) {
+                return false;
+              }
+            }
+          }
+        }
+        return true;
+      };
+
       recipients.forEach(recipient => {
 
         const filters = recipient.filter;
         const filteredRides = [];
         if (filters) {
           newRides.forEach(ride => {
-            filterLoop:
-            for (const [key, value] of Object.entries(filters)) {
-              const _key = key as keyof Ride;
-              if (key in ride && !value.includes(';') && ride[_key] !== value) {
-                break;
-              } else if (key in ride && value.includes(';')) {
-                const values = value.split(';');
-                for (const v of values) {
-                  if (
-                    v.startsWith('!') && v.slice(1) === ride[_key] ||
-                    !v.startsWith('!') && v !== ride[_key]
-                  ) {
-                    break filterLoop;
-                  }
-                }
-              } else {
-                filteredRides.push(ride);
-              }
+            if (filterRides(ride, filters)) {
+              filteredRides.push(ride);
             }
           });
         } else {
